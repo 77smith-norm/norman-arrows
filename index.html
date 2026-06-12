@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>norman-arrows</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .container {
+      max-width: 420px;
+      width: 100%;
+      background: rgba(255,255,255,0.85);
+      -webkit-backdrop-filter: blur(40px);
+      backdrop-filter: blur(40px);
+      border-radius: 24px;
+      padding: 32px 24px 28px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #86868b;
+      text-align: center;
+      margin-top: 4px;
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .input-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 16px;
+      border: 2px solid #e5e5ea;
+      border-radius: 12px;
+      font-size: 17px;
+      font-weight: 500;
+      outline: none;
+      background: #fff;
+      color: #1d1d1f;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .input-row input::placeholder {
+      color: #c7c7cc;
+      font-weight: 400;
+    }
+
+    .input-row input:focus {
+      border-color: #007aff;
+    }
+
+    .input-row input.invalid {
+      border-color: #ff3b30;
+    }
+
+    .input-row .copy-val {
+      flex-shrink: 0;
+      padding: 12px 18px;
+      background: #007aff;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    .input-row .copy-val:active {
+      background: #0056b3;
+      transform: scale(0.96);
+    }
+
+    .arrow-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .arrow-btn {
+      padding: 0;
+      height: 72px;
+      font-size: 34px;
+      background: #f2f2f7;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: background 0.1s, transform 0.1s;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1d1d1f;
+    }
+
+    .arrow-btn:active {
+      transform: scale(0.93);
+      background: #e0e0e5;
+    }
+
+    .arrow-btn.copied-flash {
+      background: #34c759;
+      color: #fff;
+      transform: scale(0.93);
+    }
+
+    .arrow-btn.copied-flash-invalid {
+      background: #ff3b30;
+      color: #fff;
+      transform: scale(0.93);
+    }
+
+    .arrow-btn.span-full {
+      grid-column: 1 / -1;
+      height: 60px;
+      font-size: 34px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 16px;
+      min-height: 24px;
+    }
+
+    .status-text {
+      font-size: 13px;
+      color: #86868b;
+      transition: opacity 0.15s;
+    }
+
+    .status-text.highlight {
+      color: #34c759;
+      font-weight: 600;
+    }
+
+    .status-text.error {
+      color: #ff3b30;
+      font-weight: 500;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #1d1d1f;
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body { background: #1c1c1e; color: #f5f5f7; }
+      .container { background: rgba(44,44,46,0.92); border-color: rgba(255,255,255,0.06); }
+      .arrow-btn { background: #3a3a3c; color: #f5f5f7; }
+      .arrow-btn:active { background: #48484a; }
+      .input-row input {
+        background: #3a3a3c;
+        color: #f5f5f7;
+        border-color: #48484a;
+      }
+      .input-row input:focus { border-color: #0a84ff; }
+      .input-row input.invalid { border-color: #ff453a; }
+      .copy-val { background: #0a84ff; }
+      .copy-val:active { background: #0068d6; }
+      .subtitle { color: #98989d; }
+      .status-text { color: #98989d; }
+      .toast { background: #f5f5f7; color: #1d1d1f; }
+    }
+
+    @media (max-width: 380px) {
+      .container { padding: 24px 16px 20px; }
+      .arrow-btn { height: 62px; font-size: 28px; }
+      .arrow-btn.span-full { height: 52px; font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>↗︎ norman-arrows</h1>
+    <p class="subtitle">type a value, tap an arrow</p>
+
+    <div class="input-row">
+      <input
+        type="text"
+        id="valueInput"
+        placeholder="LOW, HIGH, or a number"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        enterkeyhint="done"
+      >
+      <button class="copy-val" id="copyValBtn" title="Copy value only">Copy</button>
+    </div>
+
+    <div class="arrow-grid">
+      <button class="arrow-btn" data-arrow="↑">↑</button>
+      <button class="arrow-btn" data-arrow="↑↑">↑↑</button>
+      <button class="arrow-btn" data-arrow="→">→</button>
+      <button class="arrow-btn" data-arrow="↓">↓</button>
+      <button class="arrow-btn" data-arrow="↓↓">↓↓</button>
+      <button class="arrow-btn" data-arrow="↗">↗</button>
+      <button class="arrow-btn span-full" data-arrow="↘">↘</button>
+    </div>
+
+    <div class="status-row">
+      <span class="status-text" id="statusText">Ready</span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      // ----- validation -----
+      const VALID = [
+        /^LOW$/i,
+        /^HIGH$/i,
+        /^\d{2}$/,
+        /^\d{3}$/
+      ];
+
+      function isValid(v) {
+        return v === '' || VALID.some(p => p.test(v));
+      }
+
+      // ----- DOM refs -----
+      const input = document.getElementById('valueInput');
+      const copyValBtn = document.getElementById('copyValBtn');
+      const statusText = document.getElementById('statusText');
+      const toast = document.getElementById('toast');
+      const arrowBtns = document.querySelectorAll('.arrow-btn');
+
+      let toastTimer = null;
+
+      // ----- helpers -----
+      function setStatus(msg, type) {
+        statusText.textContent = msg;
+        statusText.className = 'status-text';
+        if (type === 'highlight') statusText.classList.add('highlight');
+        else if (type === 'error') statusText.classList.add('error');
+      }
+
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('visible');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('visible'), 1600);
+      }
+
+      function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).then(() => true).catch(() => false);
+        }
+        // fallback
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.left = '-9999px';
+          ta.style.top = '-9999px';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.focus();
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function flashBtn(btn, cls) {
+        btn.classList.add(cls);
+        setTimeout(() => btn.classList.remove(cls), 250);
+      }
+
+      function getValue() {
+        return input.value.trim();
+      }
+
+      // ----- input validation -----
+      input.addEventListener('input', function () {
+        const v = getValue();
+        if (v === '' || isValid(v)) {
+          input.classList.remove('invalid');
+          setStatus('Ready');
+        } else {
+          input.classList.add('invalid');
+          setStatus('Invalid — use LOW, HIGH, or a 2/3-digit number', 'error');
+        }
+      });
+
+      // blur: clear error state if now valid
+      input.addEventListener('blur', function () {
+        const v = getValue();
+        if (v === '' || isValid(v)) {
+          input.classList.remove('invalid');
+          setStatus('Ready');
+        }
+      });
+
+      // ----- arrow button click -----
+      arrowBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+          const arrow = this.dataset.arrow;
+          const val = getValue();
+          const combined = val ? val + arrow : arrow;
+
+          if (val !== '' && !isValid(val)) {
+            flashBtn(this, 'copied-flash-invalid');
+            setStatus('Fix the value first', 'error');
+            return;
+          }
+
+          copyToClipboard(combined).then(ok => {
+            if (ok) {
+              flashBtn(this, 'copied-flash');
+              showToast('Copied ' + combined);
+              setStatus('Copied ' + combined, 'highlight');
+            } else {
+              setStatus('Copy failed', 'error');
+            }
+          });
+        });
+      });
+
+      // ----- Copy button (value only) -----
+      copyValBtn.addEventListener('click', function () {
+        const val = getValue();
+        if (val === '') {
+          setStatus('Nothing to copy', 'error');
+          return;
+        }
+        if (!isValid(val)) {
+          setStatus('Invalid value', 'error');
+          return;
+        }
+        copyToClipboard(val).then(ok => {
+          if (ok) {
+            showToast('Copied ' + val);
+            setStatus('Copied ' + val, 'highlight');
+          } else {
+            setStatus('Copy failed', 'error');
+          }
+        });
+      });
+
+      // Make :active work on iOS Safari
+      document.addEventListener('touchstart', function(){}, {passive: true});
+
+      setStatus('Ready');
+    })();
+  </script>
+
+</body>
+</html>
