@@ -371,6 +371,8 @@
               flashBtn(this, 'copied-flash');
               showToast('Copied ' + combined);
               setStatus('Copied ' + combined, 'highlight');
+              input.value = '';
+              input.classList.remove('invalid');
             } else {
               setStatus('Copy failed', 'error');
             }
@@ -393,6 +395,8 @@
           if (ok) {
             showToast('Copied ' + val);
             setStatus('Copied ' + val, 'highlight');
+            input.value = '';
+            input.classList.remove('invalid');
           } else {
             setStatus('Copy failed', 'error');
           }
